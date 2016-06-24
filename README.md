@@ -14,10 +14,17 @@ How to use it
 
 ```r
 
-## first, sign in
+## first, sign in -- you will need a secret password from Andrew.
+## DO NOT WRITE IT DOWN
 fw_auth()
 
 ## then, load a specific version of the dataset
 fw_data("0.0.1")
+
+## What datasets do you have on YOUR machine
+fw_versions()
+
+## What datasets exist so far?
+fw_versions(local = FALSE)
 
 ```
