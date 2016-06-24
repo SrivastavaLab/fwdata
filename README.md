@@ -6,7 +6,8 @@ small, lightweight package for accessing BWG data for the CESAB FUNCTIONALWEBS p
 
 ```r
 library(devtools)
-install.packages("SrivastavaLab/fwdata")
+install_github("richfitz/datastorr")
+install_github("SrivastavaLab/fwdata")
 ```
 
 How to use it
