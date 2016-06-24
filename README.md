@@ -1,16 +1,22 @@
-# fwdata
+# `fwdata` : accessing data
+
 small, lightweight package for accessing BWG data for the CESAB FUNCTIONALWEBS projects
+
+## Installation
+
+```r
+library(devtools)
+install.packages("SrivastavaLab/fwdata")
+```
 
 How to use it
 
 ```r
+
+## first, sign in
 fw_auth()
 
-ourdata <- datastorr::github_release_info("SrivastavaLab/cesabfunctionalwebsdata",
-                               read=readRDS)
-
-datastorr::github_release_version_current(ourdata, local = FALSE)
-
-d <- datastorr::github_release_get(ourdata, "0.0.1")
+## then, load a specific version of the dataset
+fw_data("0.0.1")
 
 ```
