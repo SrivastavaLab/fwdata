@@ -11,21 +11,24 @@ fw_info <- function(path) {
                                  path=NULL)
 }
 
-##' @export
-##' @rdname mydata
+##' @title Get available versions of data
 ##'
 ##' @param local Logical indicating if local or github versions should
 ##'   be polled.  With any luck, \code{local=FALSE} is a superset of
 ##'   \code{local=TRUE}.  For \code{fw_version_current}, if
 ##'   \code{TRUE}, but there are no local versions, then we do check
 ##'   for the most recent github version.
-##'
+##' @export
 fw_versions <- function(local=TRUE, path=NULL) {
   datastorr::github_release_versions(fw_info(path), local)
 }
 
+##' @title Find current version
+##'
+##' @param local Logical indicating if local or github versions should
+##'   be polled.
+##'
 ##' @export
-##' @rdname mydata
 fw_version_current <- function(local=TRUE, path=NULL) {
   datastorr::github_release_version_current(fw_info(path), local)
 }

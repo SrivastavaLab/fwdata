@@ -1,12 +1,15 @@
 Package: fwdata
 Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Version: 0.0.1
+Authors@R: person("Andrew", "MacDonald", email = "a.a.m.macdonald@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
-Depends: R (>= 3.2.0)
+Depends:
+    R (>= 3.2.0)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: datastorr,
+Imports:
+    datastorr,
     digest,
     getPass
+RoxygenNote: 5.0.1
