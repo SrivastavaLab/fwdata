@@ -57,6 +57,13 @@ fw_data <-  function(version=NULL, path=NULL) {
 
 ### authentication --------------
 
+
+#' Asks for your password
+#'
+#' This password is only for members of the CESAB functional webs group. Please do not add it to your code!
+#'
+#'
+#' @export
 fw_auth <- function(){
   id <- system.file("identification.rds", package = "fwdata")
 
