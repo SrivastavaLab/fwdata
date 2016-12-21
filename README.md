@@ -13,7 +13,7 @@ install_github("SrivastavaLab/fwdata")
 How to use it
 
 ```r
-
+library(fwdata)
 ## first, sign in -- you will need a secret password from Andrew.
 ## DO NOT WRITE IT DOWN
 fw_auth()
