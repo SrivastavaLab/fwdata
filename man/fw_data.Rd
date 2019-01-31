@@ -4,7 +4,7 @@
 \alias{fw_data}
 \title{Download CESAB Functionalwebs Data}
 \usage{
-fw_data(version = NULL, path = NULL)
+fw_data(version = NULL, path = NULL, biomass = FALSE)
 }
 \arguments{
 \item{version}{Version number.  The default will load the most
@@ -19,5 +19,10 @@ to put persistent application data on your system.  You can
 delete the persistent data at any time by running
 \code{fw_del(NULL)} (or \code{fw_del(NULL, path)} if you
 use a different path).}
-}
 
+\item{biomass}{Logical indicating whether or not you want the BWG
+biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}}
+}
+\description{
+Download CESAB Functionalwebs Data
+}

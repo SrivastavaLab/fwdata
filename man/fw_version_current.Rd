@@ -4,10 +4,15 @@
 \alias{fw_version_current}
 \title{Find current version}
 \usage{
-fw_version_current(local = TRUE, path = NULL)
+fw_version_current(local = TRUE, path = NULL, biomass = FALSE)
 }
 \arguments{
 \item{local}{Logical indicating if local or github versions should
 be polled.}
-}
 
+\item{biomass}{Logical indicating whether or not you want the BWG
+biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}}
+}
+\description{
+Find current version
+}

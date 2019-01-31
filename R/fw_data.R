@@ -3,8 +3,14 @@
 
 
 ## Core data:
-fw_info <- function(path) {
-  datastorr::github_release_info("SrivastavaLab/cesabfunctionalwebsdata",
+fw_info <- function(path, biomass = FALSE) {
+  if(biomass){
+    repo <- "SrivastavaLab/bwgbiomass"
+  } else {
+    repo <- "SrivastavaLab/cesabfunctionalwebsdata"
+  }
+
+  datastorr::github_release_info(repo,
                                  filename=NULL,
                                  read=readRDS,
                                  private = FALSE,
@@ -18,9 +24,13 @@ fw_info <- function(path) {
 ##'   \code{local=TRUE}.  For \code{fw_version_current}, if
 ##'   \code{TRUE}, but there are no local versions, then we do check
 ##'   for the most recent github version.
+##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
 ##' @export
-fw_versions <- function(local=TRUE, path=NULL) {
-  datastorr::github_release_versions(fw_info(path), local)
+fw_versions <- function(local=TRUE, path=NULL, biomass = FALSE) {
+  datastorr::github_release_versions(fw_info(path, biomass), local)
 }
 
 ##' @title Find current version
@@ -28,12 +38,13 @@ fw_versions <- function(local=TRUE, path=NULL) {
 ##' @param local Logical indicating if local or github versions should
 ##'   be polled.
 ##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
 ##' @export
-fw_version_current <- function(local=TRUE, path=NULL) {
-  datastorr::github_release_version_current(fw_info(path), local)
+fw_version_current <- function(local=TRUE, path=NULL, biomass = FALSE) {
+  datastorr::github_release_version_current(fw_info(path, biomass), local)
 }
-
-
 
 ##' @title Download CESAB Functionalwebs Data
 ##'
@@ -50,9 +61,12 @@ fw_version_current <- function(local=TRUE, path=NULL) {
 ##'   \code{fw_del(NULL)} (or \code{fw_del(NULL, path)} if you
 ##'   use a different path).
 ##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
 ##' @export
-fw_data <-  function(version=NULL, path=NULL) {
-  datastorr::github_release_get(fw_info(path), version)
+fw_data <-  function(version=NULL, path=NULL, biomass = FALSE) {
+  datastorr::github_release_get(fw_info(path, biomass), version)
 }
 
 ### authentication --------------

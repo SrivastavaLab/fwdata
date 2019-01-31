@@ -12,4 +12,4 @@ Imports:
     datastorr,
     digest,
     getPass
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1

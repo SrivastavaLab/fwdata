@@ -4,7 +4,7 @@
 \alias{fw_versions}
 \title{Get available versions of data}
 \usage{
-fw_versions(local = TRUE, path = NULL)
+fw_versions(local = TRUE, path = NULL, biomass = FALSE)
 }
 \arguments{
 \item{local}{Logical indicating if local or github versions should
@@ -12,5 +12,10 @@ be polled.  With any luck, \code{local=FALSE} is a superset of
 \code{local=TRUE}.  For \code{fw_version_current}, if
 \code{TRUE}, but there are no local versions, then we do check
 for the most recent github version.}
-}
 
+\item{biomass}{Logical indicating whether or not you want the BWG
+biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}}
+}
+\description{
+Get available versions of data
+}
