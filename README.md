@@ -28,3 +28,16 @@ fw_versions()
 fw_versions(local = FALSE)
 
 ```
+
+To access the BWG biomass estimate data, use the switch `biomass = TRUE`:
+
+```r
+## then, load a specific version of the dataset
+fw_data("0.0.9000", biomass = TRUE)
+
+## What datasets do you have on YOUR machine
+fw_versions(biomass = TRUE)
+
+## What datasets exist so far?
+fw_versions(local = FALSE, biomass = TRUE)
+```
