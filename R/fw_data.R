@@ -78,19 +78,36 @@ fw_data <-  function(version=NULL, path=NULL, biomass = FALSE) {
 #'
 #'
 #' @export
-fw_auth <- function(){
+fw_auth <- function() {
+  # Check if a GITHUB_TOKEN is already set
+  existing_token <- Sys.getenv("GITHUB_TOKEN")
+
+  if (nzchar(existing_token)) {
+    message("Using the existing GITHUB_TOKEN.")
+    return(invisible(TRUE))
+  }
+
+  # If no token is set, proceed with generating a new one
   id <- system.file("identification.rds", package = "fwdata")
+
+  if (id == "") {
+    stop("Identification file not found in the fwdata package.")
+  }
 
   id_raw <- readRDS(id)
 
-  password <- getPass::getPass()
+  # Prompt the user for a password
+  password <- getPass::getPass("Please enter your password: ")
 
-  ## decrypt
+  ## Decrypt the stored key
   k <- charToRaw(paste0(password, "1234"))
   aes <- digest::AES(k, mode = "ECB")
   p_w_ending <- aes$decrypt(id_raw)
 
+  # Extract and set the token
   answer <- substr(p_w_ending, 1, 40)
+  Sys.setenv(GITHUB_TOKEN = answer)
 
-  Sys.setenv(GITHUB_TOKEN=answer)
+  message("A new GITHUB_TOKEN has been set.")
+  return(invisible(TRUE))
 }
