@@ -11,7 +11,7 @@ fw_info <- function(path, biomass = FALSE) {
   }
 
   datastorr::github_release_info(repo,
-                                 filename=NULL,
+                                 filename="all_data.rds",
                                  read=readRDS,
                                  private = FALSE,
                                  path=NULL)
