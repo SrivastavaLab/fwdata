@@ -1,0 +1,471 @@
+
+# loading packages --------------------------------------------------------------------------------------------------------------------
+
+library(tidyverse)
+library(fwdata)
+library(stringr)
+library(naniar)
+library(purrr)
+library(lubridate)
+source(file.path(getwd(), "R", "01 - expand_phylogenies_DSedited.R"))
+
+## data accessing functions
+
+## Core data:
+fw_info <- function(path, biomass = FALSE) {
+  if(biomass){
+    repo <- "SrivastavaLab/bwgbiomass"
+  } else {
+    repo <- "SrivastavaLab/cesabfunctionalwebsdata"
+  }
+
+  datastorr::github_release_info(repo,
+                                 filename="all_data.rds",
+                                 read=readRDS,
+                                 private = FALSE,
+                                 path=NULL)
+}
+
+##' @title Get available versions of data
+##'
+##' @param local Logical indicating if local or github versions should
+##'   be polled.  With any luck, \code{local=FALSE} is a superset of
+##'   \code{local=TRUE}.  For \code{fw_version_current}, if
+##'   \code{TRUE}, but there are no local versions, then we do check
+##'   for the most recent github version.
+##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
+##' @export
+fw_versions <- function(local=TRUE, path=NULL, biomass = FALSE) {
+  datastorr::github_release_versions(fw_info(path, biomass), local)
+}
+
+##' @title Find current version
+##'
+##' @param local Logical indicating if local or github versions should
+##'   be polled.
+##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
+##' @export
+fw_version_current <- function(local=TRUE, path=NULL, biomass = FALSE) {
+  datastorr::github_release_version_current(fw_info(path, biomass), local)
+}
+
+##' @title Download CESAB Functionalwebs Data
+##'
+##' @param version Version number.  The default will load the most
+##'   recent version on your computer or the most recent version known
+##'   to the package if you have never downloaded the data before.
+##'   With \code{fw_del}, specifying \code{version=NULL} will
+##'   delete \emph{all} data sets.
+##'
+##' @param path Path to store the data at.  If not given,
+##'   \code{datastorr} will use \code{rappdirs} to find the best place
+##'   to put persistent application data on your system.  You can
+##'   delete the persistent data at any time by running
+##'   \code{fw_del(NULL)} (or \code{fw_del(NULL, path)} if you
+##'   use a different path).
+##'
+##' @param biomass Logical indicating whether or not you want the BWG
+##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##'
+##' @export
+fw_data <-  function(version=NULL, path=NULL, biomass = FALSE) {
+  datastorr::github_release_get(fw_info(path, biomass), version)
+}
+
+### authentication --------------
+
+
+#' Asks for your password
+#'
+#' This password is only for members of the CESAB functional webs group. Please do not add it to your code!
+#'
+#'
+#' @export
+fw_auth <- function() {
+  # Check if a GITHUB_TOKEN is already set
+  existing_token <- Sys.getenv("GITHUB_TOKEN")
+
+  if (nzchar(existing_token)) {
+    message("Using the existing GITHUB_TOKEN.")
+    return(invisible(TRUE))
+  }
+
+  # If no token is set, proceed with generating a new one
+  id <- system.file("identification.rds", package = "fwdata")
+
+  if (id == "") {
+    stop("Identification file not found in the fwdata package.")
+  }
+
+  id_raw <- readRDS(id)
+
+  # Prompt the user for a password
+  password <- getPass::getPass("Please enter your password: ")
+
+  ## Decrypt the stored key
+  k <- charToRaw(paste0(password, "1234"))
+  aes <- digest::AES(k, mode = "ECB")
+  p_w_ending <- aes$decrypt(id_raw)
+
+  # Extract and set the token
+  answer <- substr(p_w_ending, 1, 40)
+  Sys.setenv(GITHUB_TOKEN = answer)
+
+  message("A new GITHUB_TOKEN has been set.")
+  return(invisible(TRUE))
+}
+
+
+#input files -------------------------------------------------------------
+fw_transformed_data <- function(version = "0.7.7", path = NULL, private = FALSE) {
+
+  extra_traits <- read.csv("data/Extra_traits.csv", stringsAsFactors = FALSE)
+  taxon_level_traits <- read_csv("data/taxon_level_traits.csv")
+  latest <- fwdata::fw_data("0.7.7")
+
+  corr.visits<- read_csv("data/visits_correct_LatLong_corrected.csv") %>%
+    select(visit_id, latitude, cor_long) %>%
+    mutate(visit_id = as.character(visit_id))
+
+  #these are some trait values that were missing before, for now I've just done certain traits needed later in code
+
+  # negate function ---------------------------------------------------------------------------------------------------------------------
+
+  "%nin%" <- Negate(f = "%in%")
+
+  # getting location for each dataset ---------------------------------------------------------------------------------------------------
+
+
+  data_codes <- latest$visits %>%
+    select(visit_id, dataset_id) %>%
+    left_join(latest$datasets, by ="dataset_id") %>%
+    filter(dataset_id != 96) %>%
+    filter(visit_id!=81) %>%
+    select(dataset_id, location, visit_id) %>%
+    mutate(location = if_else(dataset_id==6, "Cardoso_closed",
+                              if_else(dataset_id==146, "Cardoso_open",
+                                      if_else(visit_id %in%c(156, 171,141, 361), "Elverde_dwarf",
+                                              if_else(visit_id %in%c(151, 166,181, 136, 356), "Elverde_palo",
+                                                      if_else(visit_id %in%c(146, 161,176, 131, 351), "Elverde_tabunoco",
+                                                              if_else(visit_id==451, "Saba_dry",
+                                                                      if_else(visit_id==121, "Saba_lm",
+                                                                              if_else(visit_id==126, "Saba_mc_cloud",
+                                                                                      if_else(visit_id==116, "Saba_sc",
+                                                                                              if_else(visit_id %in%c(376,391,396,401,406,411), "Sonadora_400_650",
+                                                                                                      if_else(visit_id %in%c(446,416,421,426,431,436,441), "Sonadora_700_1000",
+                                                                                                              location))))))))))))
+
+
+  # merging location with abundance data ------------------------------------------------------------------------------------------------
+
+  foo <- left_join(x = latest$abundance,
+                   y = data_codes,
+                   by = "dataset_id")
+
+  # species to remove before proceeding -------------------------------------------------------------------------------------------------
+
+
+  modified<-latest$traits %>%
+    mutate(realm = replace(realm, bwg_name%in%c("Coleoptera.20"), "aquatic"), #pers. comm from Barbara Richardson
+           realm = replace(realm, bwg_name%in%c("Coleoptera.60","Coleoptera.47"), "terrestrial")) #pers. comm from Vinicius Farjalla
+
+  # (misidentifications<-latest$traits %>% filter(taxon_name %in%c("Therevidae", "Ephemeroptera")) %>% .$bwg_name)
+
+  # removed_species <- c(misidentifications)
+
+  #---below inserted
+  #not yet clean abundance - still has removed and web exclude species as these not defined yet
+
+  abund.visit<- latest$abundance %>%
+    left_join(latest$bromeliads, by = "bromeliad_id") %>%
+    select(visit_id, species_id, bwg_name, bromeliad_id, abundance)
+
+  # merging location with abundance data ------------------------------------------------------------------------------------------------
+
+  foo <- left_join(x = abund.visit,
+                   y = data_codes,
+                   by = "visit_id") # %>%
+   # filter(bwg_name %nin% removed_species)
+
+  #----above inserted
+
+  #making Diptera.434 equal to Diptera.276 as per rodrigo's directions
+  dip434<-latest$traits  %>%
+    filter(bwg_name=="Diptera.276") %>%
+    mutate(bwg_name = "Diptera.434") #ideally need to change this in abundance dataset too!
+
+  #make Diptera.44 into a Forcipomyiinae ceratopogonid (diane's id based on rodrigo's photos)
+  dip44<-latest$traits  %>%
+    filter(bwg_name=="Diptera.44") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.156") %>%
+            select(domain:BF4))
+
+  #make Diptera.4 into a Dasyhelea ceratopogonid (#identification confirmed by Paula Omena)
+  dip4<-latest$traits  %>%
+    filter(bwg_name=="Diptera.4") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.670") %>%
+            select(domain:BF4))
+
+  #make Diptera.112 into a Culex (#identification confirmed by Diane based on photos from Rodrigo)
+  dip112<-latest$traits  %>%
+    filter(bwg_name=="Diptera.112") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.100") %>%
+            select(domain:BF4))
+
+  #make Diptera.61 into a Tanypodinae (#identification confirmed by Diane based on photos from Rodrigo)
+  dip61<-latest$traits  %>%
+    filter(bwg_name=="Diptera.61") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.69") %>%
+            select(domain:BF4))
+
+  #make Diptera.62 into a Chironominae (#identification confirmed by Diane based on photos from Rodrigo)
+  dip62<-latest$traits  %>%
+    filter(bwg_name=="Diptera.62") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.79") %>%
+            select(domain:BF4))
+
+  #make Diptera.42 into a Ceratopogoninae (#identification confirmed by Fabiola)
+  dip42<-latest$traits  %>%
+    filter(bwg_name=="Diptera.42") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.52") %>%
+            select(domain:BF4))
+
+  #make Diptera.38 into a Ceratopogoninae (#identification confirmed by Fabiola)
+  dip38<-latest$traits  %>%
+    filter(bwg_name=="Diptera.38") %>%
+    select(species_id:bwg_name) %>%
+    cbind(latest$traits  %>%
+            filter(bwg_name=="Diptera.52") %>%
+            select(domain:BF4))
+
+  # housekeeping
+
+  ## Note - still need to clean Limoniidae vs. Tipulidae (because not all parts of bwg are consistent with 2012 elevation of Limoniinae as family)
+  ## Note - taxon_name=="Ocyptamus" this is a syrphid that accidentally was listed as a predator - check traits
+  ## after reviewing taxonomy I did not alter subfamily Limoniinae as appears used consistently in database
+
+  traits_species_names1 <- latest$traits %>%
+    # filter(bwg_name %nin% removed_species) %>%
+    mutate(family = replace(family,family=="Vellidae", "Veliidae")) %>%
+    mutate(family = replace(family, family=="Axymiidae", "Syrphidae")) %>% #check with Ignacio
+    mutate(subfamily = replace(subfamily, bwg_name=="Branchiopoda.3","Daphniinae"),
+           subord = replace(subord, subord=="Zigoptera", "Zygoptera"),
+           ord = replace(ord, ord=="Opisthopora<U+FFFD>", "Opisthopora"))%>%
+    mutate(taxon_name = replace(taxon_name, bwg_name == "Odonata.9", "Oreiallagma oreas"),
+           genus = replace(genus, bwg_name == "Odonata.9", "Oreiallagma"),
+           species = replace(species, bwg_name == "Odonata.9", "oreas"),
+           taxon_level = replace(taxon_level,bwg_name == "Odonata.9", "species")) %>%
+    mutate(taxon_name = replace(taxon_name, bwg_name == "Diptera.7", "Brachycera"),
+           family = replace(family, bwg_name == "Diptera.7", NA),
+           taxon_level = replace(taxon_level,bwg_name == "Diptera.7", "subord")) %>%
+    mutate(subfamily = replace(subfamily, genus == "Culicoides", "Ceratopogoninae_omnivore")) %>%
+    mutate(taxon_name = replace(taxon_name, bwg_name=="Branchiopoda.3", "Daphniinae"),
+           taxon_name = replace(taxon_name, taxon_name=="Axymiidae", "Syrphidae"), #check with Ignacio
+           taxon_name = replace(taxon_name, taxon_name=="Zigoptera", "Zygoptera")) %>%
+    mutate(MD6 = replace(MD6, ord =="Odonata", 3),
+           MD1 = replace(MD1, ord =="Odonata", 0)) %>%
+    mutate(FD1 = replace(FD1, phylum=="Platyhelminthes", 3),
+           FD6 = replace(FD6, phylum =="Platyhelminthes", 3),
+           FG4 = replace(FG4, phylum =="Platyhelminthes", 2)) %>% #honorary filterfeeding ability
+    mutate(CP1 = replace(CP1, phylum =="Platyhelminthes",3),
+           CP2 = replace(CP2, phylum =="Platyhelminthes",0),
+           CP3 = replace(CP3, phylum =="Platyhelminthes",0)) %>%
+    mutate(FD8 = replace(FD8, family =="Elateridae", 3),
+           FG6 = replace(FG6, family =="Elateridae", 3),
+           MD6 = replace(MD6, family =="Elateridae", 3),
+           LO4 = replace(LO4, family =="Elateridae", 3)) %>%
+    mutate(FD1=replace(FD1, bwg_name=="Diptera.332",0),#corrected a syphid larvae known to be a predator and only a predator
+           FD2=replace(FD2, bwg_name=="Diptera.332",0),
+           FD3=replace(FD3, bwg_name=="Diptera.332",0),
+           FD4=replace(FD4, bwg_name=="Diptera.332",0),
+           FD5=replace(FD5, bwg_name=="Diptera.332",0),
+           FD6=replace(FD6, bwg_name=="Diptera.332",0),
+           FD7=replace(FD7, bwg_name=="Diptera.332",0),
+           FD4=replace(FD4, bwg_name=="Diptera.49",1),
+           FD8=replace(FD8, bwg_name=="Diptera.49",0)) %>% #algivore ceratopogonid, not predator as coded prior
+    mutate(FD3 = replace(FD3, genus =="Rhabdomastrix", 3),
+           FD4 = replace(FD4, genus =="Limonia", 3)) %>% #looks like a CPOM eater
+    mutate(FD3 = replace(FD3, bwg_name=="Diptera.430", 3),
+           FD1 = replace(FD1, bwg_name=="Diptera.430", 3),
+           FD8 = replace(FD8, bwg_name=="Diptera.430", 1),
+           family = replace(family, bwg_name=="Diptera.430", "Sarcophagidae"),
+           taxon_name = replace(taxon_name, bwg_name=="Diptera.430", "Sarcophagidae")) %>%
+    #the following fixes are from the pitilla temporal wg code
+    mutate(subphylum = replace(subphylum, class=="Insecta","Hexapoda"),
+           subfamily = replace(subfamily, genus=="Corethrella","Corethrellinae"),
+           species = replace(species, taxon_name=="Culex_albipes","Culex_albipes"),
+           species = replace(species, taxon_name=="Culex_aphylactus","Culex_aphylactus"),
+           domain = replace(domain, kingdom=="Animalia","Eukaryota"),
+           subclass = replace(subclass, ord=="Diptera","Neoptera"),
+           FD4 = replace(FD4, taxon_name=="Sphaeromias",0),
+           FD8 = replace(FD8, taxon_name=="Sphaeromias",3),
+    )%>%
+    mutate(family = replace(family, family=="Enchytraeoidae","Enchytraeidae"),
+           taxon_name = replace(taxon_name, family=="Enchytraeidae","Enchytraeidae"),
+           BS3 = replace(BS3, family=="Enchytraeidae",0),
+           BS4 = replace(BS4, family=="Enchytraeidae",3),
+           BS5 = replace(BS5, family=="Enchytraeidae",0),
+           LO7 = replace(LO7, family=="Enchytraeidae",0)) %>%
+    #back to original code
+    mutate(species = if_else(!is.na(species), paste0(genus, "_", species), species)) %>%
+    filter (bwg_name!="Diptera.276") %>% #removing Diptera.276 as renamed Diptera.434 in abundance
+    filter(bwg_name!="Diptera.44") %>%
+    rbind(dip44) %>%
+    filter (bwg_name!="Diptera.4") %>%
+    rbind(dip4) %>%
+    filter(bwg_name!="Diptera.112") %>%
+    rbind(dip112) %>%
+    filter (bwg_name!="Diptera.61") %>%
+    rbind(dip61) %>%
+    filter(bwg_name!="Diptera.62") %>%
+    rbind(dip62) %>%
+    filter (bwg_name!="Diptera.42") %>%
+    rbind(dip42) %>%
+    filter(bwg_name!="Diptera.38") %>%
+    rbind(dip38)
+
+  taxa_to_update<-taxon_level_traits$taxon_name %>% as.list()
+
+  traits_species_names2<- traits_species_names1 %>%
+    mutate(taxon_name = replace(taxon_name, bwg_name == "Oligochaeta.13", "Oligochaeta_Naididae_and_Enchytraeidae")) %>% #Pitilla worm misidentified
+    filter(taxon_name %in%taxa_to_update) %>%
+    select(species_id:bwg_name, functional_group:barcode, taxon_name) %>%
+    left_join(taxon_level_traits) %>%
+    relocate(functional_group:barcode, .after = subspecies) %>%
+    relocate(taxon_name, .after = taxon_level)
+
+  traits_species_names1<-traits_species_names1 %>%
+    mutate(taxon_name = replace(taxon_name, bwg_name == "Oligochaeta.13", "Oligochaeta_Naididae_and_Enchytraeidae")) %>% #Pitilla worm misidentified
+    filter(taxon_name %nin%taxa_to_update) %>%
+    rbind(traits_species_names2)
+
+  oddities<-extra_traits$taxon_name %>% as.list()
+
+  trait_repair <-traits_species_names1 %>%
+    filter(taxon_name %in% oddities) %>%
+    select(-(AS1:BF4)) %>%
+    left_join(extra_traits, by=c("taxon_name"="taxon_name"))
+
+  traits_species_names<-traits_species_names1 %>%
+    filter(taxon_name %nin% oddities) %>%
+    rbind(trait_repair)
+
+  species_long_list <- traits_species_names$bwg_name %>%
+    unique() %>%
+    as.list()
+
+  #starting with datasets to archive ---------------------
+
+  datasets<-latest$datasets %>%
+    filter(dataset_id != 96)
+
+  dataset_list<-datasets$dataset_id %>% as.list()
+
+  #Sarah - can you rewrite the next two lines of code so it inserts the current date
+  datasets_pub<-datasets %>%
+    filter(public_release<as.Date("2020-09-01"))
+
+  public_datasets <-datasets_pub$dataset_id %>% as.list()
+
+  #now just the visits to archive-------------------------
+
+  visits <-latest$visits%>%
+    filter(dataset_id %in% dataset_list) %>%
+    select(-latitude, -longitude) %>%
+    left_join(corr.visits) %>%
+    rename(longitude = cor_long)
+
+
+  visits_pub <-visits %>%
+    filter(dataset_id %in% public_datasets)
+
+  #now just the bromeliads in the datasets to archive-----------------------------------------
+
+  bromeliads <-latest$bromeliads%>%
+    filter(dataset_id %in% dataset_list) %>%
+    filter(bromeliad_id %nin% c("5846", "7956", "9856"))
+
+  bromeliads_pub <- bromeliads %>%
+    filter(dataset_id %in% public_datasets)
+
+  public_bromeliads <-bromeliads_pub$bromeliad_id %>% as.list()
+  bromeliads_list <-bromeliads$bromeliad_id %>% as.list()
+
+  #and the matching abundance info, filtered for the truly aquatic macro species
+
+  abundance <-latest$abundance %>%
+    filter(bromeliad_id %in% bromeliads_list) %>%
+    filter(bwg_name %in% species_long_list) %>%
+    mutate(species_id=replace(species_id, bwg_name=="Diptera.276","4321")) %>%
+    mutate(bwg_name=replace(bwg_name, bwg_name=="Diptera.276","Diptera.434")) %>%
+    unite(col = "all", dataset_id:bromeliad_id, sep = "/") %>%
+    group_by(all) %>%
+    summarise(abundance = sum(abundance)) %>%
+    separate(all, into = c("dataset_id","species_id", "bwg_name", "bromeliad_id"), sep = "/")
+
+  abundance_pub <- abundance %>%
+    filter(bromeliad_id %in% public_bromeliads) %>%
+    filter(bwg_name %in% species_long_list)
+
+  #and then the traits --------------------------------------------------------
+
+  traits<-traits_species_names %>%
+    filter(bwg_name %in% species_long_list)
+
+  traits_pub<-traits_species_names %>%
+    filter(bwg_name %in% species_long_list)
+
+  # saving output as a list of dfs -----------------------------------------------------------------------------------------------------------------
+  # Public data
+  public_data <- list(
+    datasets = datasets_pub ,
+    visits = visits_pub,
+    traits = traits_pub,
+    bromeliads = bromeliads_pub,
+    abundance = abundance_pub
+  )
+
+  # Private data
+  private_data <- list(
+    datasets = datasets,
+    visits = visits,
+    traits = traits,
+    bromeliads = bromeliads,
+    abundance = abundance
+  )
+
+  #Sarah - here I have these saved to csv, but actually we want fwdata to export these as a list of dataframes
+  #I would like the ones with public_ at the start to be accessed by fwdata without a password
+  #and the ones without public_ at the start at the start to be accessed only with a password
+
+  # Step 5: Use fw_auth() for private data access
+  if (private) {
+    # Call fw_auth to check authentication
+    fw_auth()
+    message("Accessing private data.")
+    return(list(private = private_data))
+  }
+
+  # Step 4: Return only public data if no private access requested
+  message("Accessing public data only.")
+  return(list(public = public_data))
+}
+
