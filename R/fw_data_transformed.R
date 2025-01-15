@@ -2,8 +2,8 @@
 # loading packages --------------------------------------------------------------------------------------------------------------------
 
 library(tidyverse)
-library(fwdata)
 library(stringr)
+library(readr)
 library(naniar)
 library(purrr)
 library(lubridate)
@@ -123,11 +123,12 @@ fw_auth <- function() {
 
 
 #input files -------------------------------------------------------------
-fw_transformed_data <- function(version = "0.7.7", path = NULL, private = FALSE) {
+#' @export
+fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE, private = FALSE) {
 
   extra_traits <- read.csv("data/Extra_traits.csv", stringsAsFactors = FALSE)
   taxon_level_traits <- read_csv("data/taxon_level_traits.csv")
-  latest <- fwdata::fw_data("0.7.7")
+  latest <- fw_data(version, path, biomass=biomass)
 
   corr.visits<- read_csv("data/visits_correct_LatLong_corrected.csv") %>%
     select(visit_id, latitude, cor_long) %>%
