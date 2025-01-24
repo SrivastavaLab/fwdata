@@ -126,11 +126,11 @@ fw_auth <- function() {
 #' @export
 fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE, private = FALSE) {
 
-  extra_traits <- read.csv("data/Extra_traits.csv", stringsAsFactors = FALSE)
-  taxon_level_traits <- read_csv("data/taxon_level_traits.csv")
+  extra_traits <- read.csv(system.file("data", "Extra_traits.csv", package = "fwdata"), stringsAsFactors = FALSE)
+  taxon_level_traits <- read_csv(system.file("data", "taxon_level_traits.csv", package = "fwdata"))
   latest <- fw_data(version, path, biomass=biomass)
 
-  corr.visits<- read_csv("data/visits_correct_LatLong_corrected.csv") %>%
+  corr.visits <- read.csv(system.file("data", "visits_correct_LatLong_corrected.csv", package = "fwdata"), stringsAsFactors = FALSE) %>%
     select(visit_id, latitude, cor_long) %>%
     mutate(visit_id = as.character(visit_id))
 
@@ -462,11 +462,11 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     # Call fw_auth to check authentication
     fw_auth()
     message("Accessing private data.")
-    return(list(private = private_data))
+    return(private_data)
   }
 
   # Step 4: Return only public data if no private access requested
   message("Accessing public data only.")
-  return(list(public = public_data))
+  return(public_data)
 }
 
