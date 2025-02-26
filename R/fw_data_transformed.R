@@ -1,16 +1,10 @@
-
-# loading packages --------------------------------------------------------------------------------------------------------------------
-
-library(tidyverse)
-library(stringr)
-library(readr)
-library(naniar)
-library(purrr)
-library(lubridate)
-source(file.path(getwd(), "R", "01 - expand_phylogenies_DSedited.R"))
+#' @importFrom dplyr mutate filter %>% select rename group_by summarise left_join
+#' @importFrom tidyr unite separate
+#' @importFrom utils read.csv
 
 ## data accessing functions
 
+##' @export
 ## Core data:
 fw_info <- function(path, biomass = FALSE) {
   if(biomass){
@@ -126,11 +120,11 @@ fw_auth <- function() {
 #' @export
 fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE, private = FALSE) {
 
-  extra_traits <- read.csv(system.file("data", "Extra_traits.csv", package = "fwdata"), stringsAsFactors = FALSE)
-  taxon_level_traits <- read_csv(system.file("data", "taxon_level_traits.csv", package = "fwdata"))
+  extra_traits <- read.csv(file.path("inst", "extdata", "Extra_traits.csv"), stringsAsFactors = FALSE)
+  taxon_level_traits <- read.csv(file.path("inst", "extdata", "taxon_level_traits.csv"), stringsAsFactors = FALSE)
   latest <- fw_data(version, path, biomass=biomass)
 
-  corr.visits <- read.csv(system.file("data", "visits_correct_LatLong_corrected.csv", package = "fwdata"), stringsAsFactors = FALSE) %>%
+  corr.visits <- read.csv(file.path("inst", "extdata", "visits_correct_LatLong_corrected.csv"), stringsAsFactors = FALSE) %>%
     select(visit_id, latitude, cor_long) %>%
     mutate(visit_id = as.character(visit_id))
 
