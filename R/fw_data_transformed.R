@@ -140,62 +140,7 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
 
   "%nin%" <- Negate(f = "%in%")
 
-  # getting location for each dataset ---------------------------------------------------------------------------------------------------
-
-
-  data_codes <- latest$visits %>%
-    select(visit_id, dataset_id) %>%
-    left_join(latest$datasets, by ="dataset_id") %>%
-    filter(dataset_id != 96) %>%
-    filter(visit_id!=81) %>%
-    select(dataset_id, location, visit_id) %>%
-    mutate(location = if_else(dataset_id==6, "Cardoso_closed",
-                              if_else(dataset_id==146, "Cardoso_open",
-                                      if_else(visit_id %in%c(156, 171,141, 361), "Elverde_dwarf",
-                                              if_else(visit_id %in%c(151, 166,181, 136, 356), "Elverde_palo",
-                                                      if_else(visit_id %in%c(146, 161,176, 131, 351), "Elverde_tabunoco",
-                                                              if_else(visit_id==451, "Saba_dry",
-                                                                      if_else(visit_id==121, "Saba_lm",
-                                                                              if_else(visit_id==126, "Saba_mc_cloud",
-                                                                                      if_else(visit_id==116, "Saba_sc",
-                                                                                              if_else(visit_id %in%c(376,391,396,401,406,411), "Sonadora_400_650",
-                                                                                                      if_else(visit_id %in%c(446,416,421,426,431,436,441), "Sonadora_700_1000",
-                                                                                                              location))))))))))))
-
-
-  # merging location with abundance data ------------------------------------------------------------------------------------------------
-
-  foo <- left_join(x = latest$abundance,
-                   y = data_codes,
-                   by = "dataset_id")
-
-  # species to remove before proceeding -------------------------------------------------------------------------------------------------
-
-
-  modified<-latest$traits %>%
-    mutate(realm = replace(realm, bwg_name%in%c("Coleoptera.20"), "aquatic"), #pers. comm from Barbara Richardson
-           realm = replace(realm, bwg_name%in%c("Coleoptera.60","Coleoptera.47"), "terrestrial")) #pers. comm from Vinicius Farjalla
-
-  # (misidentifications<-latest$traits %>% filter(taxon_name %in%c("Therevidae", "Ephemeroptera")) %>% .$bwg_name)
-
-  # removed_species <- c(misidentifications)
-
-  #---below inserted
-  #not yet clean abundance - still has removed and web exclude species as these not defined yet
-
-  abund.visit<- latest$abundance %>%
-    left_join(latest$bromeliads, by = "bromeliad_id") %>%
-    select(visit_id, species_id, bwg_name, bromeliad_id, abundance)
-
-  # merging location with abundance data ------------------------------------------------------------------------------------------------
-
-  foo <- left_join(x = abund.visit,
-                   y = data_codes,
-                   by = "visit_id") # %>%
-   # filter(bwg_name %nin% removed_species)
-
-  #----above inserted
-
+  #**fw start 4**
   #making Diptera.434 equal to Diptera.276 as per rodrigo's directions
   dip434<-latest$traits  %>%
     filter(bwg_name=="Diptera.276") %>%
@@ -256,44 +201,53 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     cbind(latest$traits  %>%
             filter(bwg_name=="Diptera.52") %>%
             select(domain:BF4))
+  #**fw end 4**
 
+  #**fw start 5**
   # housekeeping
 
   ## Note - still need to clean Limoniidae vs. Tipulidae (because not all parts of bwg are consistent with 2012 elevation of Limoniinae as family)
   ## Note - taxon_name=="Ocyptamus" this is a syrphid that accidentally was listed as a predator - check traits
   ## after reviewing taxonomy I did not alter subfamily Limoniinae as appears used consistently in database
 
-  traits_species_names1 <- latest$traits %>%
-    # filter(bwg_name %nin% removed_species) %>%
-    mutate(family = replace(family,family=="Vellidae", "Veliidae")) %>%
-    mutate(family = replace(family, family=="Axymiidae", "Syrphidae")) %>% #check with Ignacio
-    mutate(subfamily = replace(subfamily, bwg_name=="Branchiopoda.3","Daphniinae"),
+  taxa_to_update<-taxon_level_traits$taxon_name %>% as.list()
+  oddities<-extra_traits$taxon_name %>% as.list()
+  # Combine all rows to be added into a single data frame
+  rows_to_add <- bind_rows(dip44, dip4, dip112, dip61, dip62, dip42, dip38)
+
+  latest$traits <- latest$traits %>%
+    mutate(realm = replace(realm, bwg_name%in%c("Coleoptera.20"), "aquatic"), #pers. comm from Barbara Richardson
+           realm = replace(realm, bwg_name%in%c("Coleoptera.60","Coleoptera.47"), "terrestrial"), #pers. comm from Vinicius Farjalla
+           family = replace(family,family=="Vellidae", "Veliidae"),
+           family = replace(family, family=="Axymiidae", "Syrphidae"),
+           subfamily = replace(subfamily, bwg_name=="Branchiopoda.3","Daphniinae"),
            subord = replace(subord, subord=="Zigoptera", "Zygoptera"),
-           ord = replace(ord, ord=="Opisthopora<U+FFFD>", "Opisthopora"))%>%
-    mutate(taxon_name = replace(taxon_name, bwg_name == "Odonata.9", "Oreiallagma oreas"),
+           ord = replace(ord, ord=="Opisthopora<U+FFFD>", "Opisthopora"),
+           taxon_name = replace(taxon_name, bwg_name == "Odonata.9", "Oreiallagma oreas"),
            genus = replace(genus, bwg_name == "Odonata.9", "Oreiallagma"),
            species = replace(species, bwg_name == "Odonata.9", "oreas"),
-           taxon_level = replace(taxon_level,bwg_name == "Odonata.9", "species")) %>%
-    mutate(taxon_name = replace(taxon_name, bwg_name == "Diptera.7", "Brachycera"),
+           taxon_level = replace(taxon_level,bwg_name == "Odonata.9", "species"),
+           taxon_name = replace(taxon_name, bwg_name == "Diptera.7", "Brachycera"),
            family = replace(family, bwg_name == "Diptera.7", NA),
-           taxon_level = replace(taxon_level,bwg_name == "Diptera.7", "subord")) %>%
-    mutate(subfamily = replace(subfamily, genus == "Culicoides", "Ceratopogoninae_omnivore")) %>%
-    mutate(taxon_name = replace(taxon_name, bwg_name=="Branchiopoda.3", "Daphniinae"),
-           taxon_name = replace(taxon_name, taxon_name=="Axymiidae", "Syrphidae"), #check with Ignacio
-           taxon_name = replace(taxon_name, taxon_name=="Zigoptera", "Zygoptera")) %>%
-    mutate(MD6 = replace(MD6, ord =="Odonata", 3),
-           MD1 = replace(MD1, ord =="Odonata", 0)) %>%
-    mutate(FD1 = replace(FD1, phylum=="Platyhelminthes", 3),
+           taxon_level = replace(taxon_level,bwg_name == "Diptera.7", "subord"),
+           subfamily = replace(subfamily, genus == "Culicoides", "Ceratopogoninae_omnivore"),
+           taxon_name = replace(taxon_name, bwg_name=="Branchiopoda.3", "Daphniinae"),
+           taxon_name = replace(taxon_name, taxon_name=="Axymiidae", "Syrphidae"),
+           taxon_name = replace(taxon_name, taxon_name=="Zigoptera", "Zygoptera"),
+           taxon_name = replace(taxon_name, bwg_name == "Oligochaeta.13", "Oligochaeta_Naididae_and_Enchytraeidae"),
+           MD6 = replace(MD6, ord =="Odonata", 3),
+           MD1 = replace(MD1, ord =="Odonata", 0),
+           FD1 = replace(FD1, phylum=="Platyhelminthes", 3),
            FD6 = replace(FD6, phylum =="Platyhelminthes", 3),
-           FG4 = replace(FG4, phylum =="Platyhelminthes", 2)) %>% #honorary filterfeeding ability
-    mutate(CP1 = replace(CP1, phylum =="Platyhelminthes",3),
+           FG4 = replace(FG4, phylum =="Platyhelminthes", 2),
+           CP1 = replace(CP1, phylum =="Platyhelminthes",3),
            CP2 = replace(CP2, phylum =="Platyhelminthes",0),
-           CP3 = replace(CP3, phylum =="Platyhelminthes",0)) %>%
-    mutate(FD8 = replace(FD8, family =="Elateridae", 3),
+           CP3 = replace(CP3, phylum =="Platyhelminthes",0),
+           FD8 = replace(FD8, family =="Elateridae", 3),
            FG6 = replace(FG6, family =="Elateridae", 3),
            MD6 = replace(MD6, family =="Elateridae", 3),
-           LO4 = replace(LO4, family =="Elateridae", 3)) %>%
-    mutate(FD1=replace(FD1, bwg_name=="Diptera.332",0),#corrected a syphid larvae known to be a predator and only a predator
+           LO4 = replace(LO4, family =="Elateridae", 3),
+           FD1=replace(FD1, bwg_name=="Diptera.332",0),#corrected a syphid larvae known to be a predator and only a predator
            FD2=replace(FD2, bwg_name=="Diptera.332",0),
            FD3=replace(FD3, bwg_name=="Diptera.332",0),
            FD4=replace(FD4, bwg_name=="Diptera.332",0),
@@ -301,16 +255,15 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
            FD6=replace(FD6, bwg_name=="Diptera.332",0),
            FD7=replace(FD7, bwg_name=="Diptera.332",0),
            FD4=replace(FD4, bwg_name=="Diptera.49",1),
-           FD8=replace(FD8, bwg_name=="Diptera.49",0)) %>% #algivore ceratopogonid, not predator as coded prior
-    mutate(FD3 = replace(FD3, genus =="Rhabdomastrix", 3),
-           FD4 = replace(FD4, genus =="Limonia", 3)) %>% #looks like a CPOM eater
-    mutate(FD3 = replace(FD3, bwg_name=="Diptera.430", 3),
+           FD8=replace(FD8, bwg_name=="Diptera.49",0),
+           FD3 = replace(FD3, genus =="Rhabdomastrix", 3),
+           FD4 = replace(FD4, genus =="Limonia", 3),
+           FD3 = replace(FD3, bwg_name=="Diptera.430", 3),
            FD1 = replace(FD1, bwg_name=="Diptera.430", 3),
            FD8 = replace(FD8, bwg_name=="Diptera.430", 1),
            family = replace(family, bwg_name=="Diptera.430", "Sarcophagidae"),
-           taxon_name = replace(taxon_name, bwg_name=="Diptera.430", "Sarcophagidae")) %>%
-    #the following fixes are from the pitilla temporal wg code
-    mutate(subphylum = replace(subphylum, class=="Insecta","Hexapoda"),
+           taxon_name = replace(taxon_name, bwg_name=="Diptera.430", "Sarcophagidae"),
+           subphylum = replace(subphylum, class=="Insecta","Hexapoda"),
            subfamily = replace(subfamily, genus=="Corethrella","Corethrellinae"),
            species = replace(species, taxon_name=="Culex_albipes","Culex_albipes"),
            species = replace(species, taxon_name=="Culex_aphylactus","Culex_aphylactus"),
@@ -318,62 +271,49 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
            subclass = replace(subclass, ord=="Diptera","Neoptera"),
            FD4 = replace(FD4, taxon_name=="Sphaeromias",0),
            FD8 = replace(FD8, taxon_name=="Sphaeromias",3),
-    )%>%
-    mutate(family = replace(family, family=="Enchytraeoidae","Enchytraeidae"),
+           family = replace(family, family=="Enchytraeoidae","Enchytraeidae"),
            taxon_name = replace(taxon_name, family=="Enchytraeidae","Enchytraeidae"),
            BS3 = replace(BS3, family=="Enchytraeidae",0),
            BS4 = replace(BS4, family=="Enchytraeidae",3),
            BS5 = replace(BS5, family=="Enchytraeidae",0),
-           LO7 = replace(LO7, family=="Enchytraeidae",0)) %>%
-    #back to original code
-    mutate(species = if_else(!is.na(species), paste0(genus, "_", species), species)) %>%
-    filter (bwg_name!="Diptera.276") %>% #removing Diptera.276 as renamed Diptera.434 in abundance
-    filter(bwg_name!="Diptera.44") %>%
-    rbind(dip44) %>%
-    filter (bwg_name!="Diptera.4") %>%
-    rbind(dip4) %>%
-    filter(bwg_name!="Diptera.112") %>%
-    rbind(dip112) %>%
-    filter (bwg_name!="Diptera.61") %>%
-    rbind(dip61) %>%
-    filter(bwg_name!="Diptera.62") %>%
-    rbind(dip62) %>%
-    filter (bwg_name!="Diptera.42") %>%
-    rbind(dip42) %>%
-    filter(bwg_name!="Diptera.38") %>%
-    rbind(dip38)
+           LO7 = replace(LO7, family=="Enchytraeidae",0),
+           species = if_else(!is.na(species), paste0(genus, "_", species), species)) %>%
+    filter(!bwg_name %in% c("Diptera.276", "Diptera.44", "Diptera.4", "Diptera.112", "Diptera.61", "Diptera.62", "Diptera.42", "Diptera.38")) %>%
+    bind_rows(rows_to_add)
 
-  taxa_to_update<-taxon_level_traits$taxon_name %>% as.list()
-
-  traits_species_names2<- traits_species_names1 %>%
-    mutate(taxon_name = replace(taxon_name, bwg_name == "Oligochaeta.13", "Oligochaeta_Naididae_and_Enchytraeidae")) %>% #Pitilla worm misidentified
-    filter(taxon_name %in%taxa_to_update) %>%
-    select(species_id:bwg_name, functional_group:barcode, taxon_name) %>%
-    left_join(taxon_level_traits) %>%
-    relocate(functional_group:barcode, .after = subspecies) %>%
-    relocate(taxon_name, .after = taxon_level)
-
-  traits_species_names1<-traits_species_names1 %>%
-    mutate(taxon_name = replace(taxon_name, bwg_name == "Oligochaeta.13", "Oligochaeta_Naididae_and_Enchytraeidae")) %>% #Pitilla worm misidentified
-    filter(taxon_name %nin%taxa_to_update) %>%
-    rbind(traits_species_names2)
-
-  oddities<-extra_traits$taxon_name %>% as.list()
-
-  trait_repair <-traits_species_names1 %>%
-    filter(taxon_name %in% oddities) %>%
-    select(-(AS1:BF4)) %>%
-    left_join(extra_traits, by=c("taxon_name"="taxon_name"))
-
-  traits_species_names<-traits_species_names1 %>%
+  traits_species_names <- latest$traits %>%
+    # Separate the taxa for updating and not updating, process and rebind them
+    filter(taxon_name %nin% taxa_to_update) %>%
+    rbind(
+      latest$traits %>%
+        filter(taxon_name %in% taxa_to_update) %>%
+        select(species_id:bwg_name, functional_group:barcode, taxon_name) %>%
+        left_join(taxon_level_traits) %>%
+        relocate(functional_group:barcode, .after = subspecies) %>%
+        relocate(taxon_name, .after = taxon_level)
+    ) %>%
+    # Now handle oddities and rebind them
     filter(taxon_name %nin% oddities) %>%
-    rbind(trait_repair)
+    rbind(
+      latest$traits %>%
+        filter(taxon_name %in% oddities) %>%
+        select(-(AS1:BF4)) %>%
+        left_join(extra_traits, by = c("taxon_name" = "taxon_name"))
+    )
 
   species_long_list <- traits_species_names$bwg_name %>%
     unique() %>%
     as.list()
 
-  #starting with datasets to archive ---------------------
+  #starting with traits --------------------------------------------------------
+
+  traits<-traits_species_names %>%
+    filter(bwg_name %in% species_long_list)
+
+  traits_pub<-traits_species_names %>%
+    filter(bwg_name %in% species_long_list)
+
+  # and then datasets to archive ---------------------
 
   datasets<-latest$datasets %>%
     filter(dataset_id != 96)
@@ -393,7 +333,6 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     select(-latitude, -longitude) %>%
     left_join(corr.visits) %>%
     rename(longitude = cor_long)
-
 
   visits_pub <-visits %>%
     filter(dataset_id %in% public_datasets)
@@ -424,14 +363,6 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
 
   abundance_pub <- abundance %>%
     filter(bromeliad_id %in% public_bromeliads) %>%
-    filter(bwg_name %in% species_long_list)
-
-  #and then the traits --------------------------------------------------------
-
-  traits<-traits_species_names %>%
-    filter(bwg_name %in% species_long_list)
-
-  traits_pub<-traits_species_names %>%
     filter(bwg_name %in% species_long_list)
 
   # saving output as a list of dfs -----------------------------------------------------------------------------------------------------------------
