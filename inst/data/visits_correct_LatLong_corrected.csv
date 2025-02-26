@@ -1,0 +1,77 @@
+visit_id,dataset_id,habitat,latitude,dataset_name,date,cor_long,ras_num
+506,276,Xerophytic forest,-29.433,LasGamas2004Spring,16/11/2004,-60.467,4
+496,266,Xerophytic forest,-29.433,LasGamas2005Summer,27/01/2005,-60.467,4
+491,261,Xerophytic forest,-29.433,LasGamas2005Winter,14/06/2005,-60.467,4
+266,166,Xerophytic Forest,-29.433,LasGamas2010,13/12/2010,-60.467,4
+271,171,Xerophytic Forest,-29.433,LasGamas2012,05/01/2012,-60.467,4
+281,181,Xerophytic Forest,-29.433,LasGamas2013,04/02/2013,-60.467,4
+511,146,open_restinga,-25.072,Cardoso2011,01/03/2011,-47.923,1
+231,146,Restinga - Open,-25.072,Cardoso2011,05/02/2011,-47.923,1
+21,6,"closed restinga forest, Quesnelia arvensis",-25.0716,Cardoso2008,17/01/2008,-47.9234,1
+246,156,Restinga - Closed,-24.431,Jureia2013,14/12/2013,-47.109,1
+481,251,Restinga - Open,-23.7375,IlhaBella2015,28/04/2015,-45.2912,1
+241,151,Restinga - Closed,-23.3541,Picinguaba2011,14/12/2011,-44.828,1
+346,161,Riparian Forest,-23.2433,SerraDoJapi2011,29/03/2011,-46.9513,1
+251,161,Semidecidual Forest,-23.233,SerraDoJapi2011,17/01/2011,-46.967,1
+471,241,Restinga-Open,-22.9513,ArraialDoCabo2015,15/04/2015,-42.0431,1
+476,246,Restinga - Open,-22.9472,Marica2015,23/04/2015,-42.8875,1
+211,141,Restinga - Open,-22.2954,Macae2008,08/01/2008,-41.6857,1
+456,236,Restinga-Open,-22.2075,Macae2015,14/03/2015,-41.4847,1
+296,191,Secondary Forest,4.5146,Kaw2008,15/10/2008,-52.0665,2
+311,201,Inselberg - Rock Savanna - Site 5,4.083,Nouragues2006,23/03/2006,-52.683,2
+326,201,Primary Forest - Site 4,4.083,Nouragues2006,23/03/2006,-52.683,2
+316,201,Primary rainforest  Creek- Site 1,4.083,Nouragues2006,23/03/2006,-52.683,2
+306,201,Transition Forest - Site 2,4.083,Nouragues2006,23/03/2006,-52.683,2
+331,206,Inselberg - Rock Savanna,4.083,Nouragues2009,07/10/2009,-52.683,2
+341,216,Primary Forest,5.0629,PetitSaut2014,28/10/2014,-53.0475,2
+336,211,Secondary forest - Urban,5.3746,Sinnamary2011,29/06/2011,-52.9546,2
+91,76,"Cloud forest, secondary",4.7945,Guasca2001,08/12/2001,-73.9087,3
+96,81,Cloud Forest,5.017,Sisga2000,10/03/2000,-73.7,3
+291,186,Primary Forest,5.0629,PetitSaut2007,26/01/2007,-53.0475,2
+286,186,Secondary Forest,5.0629,PetitSaut2007,26/01/2007,-53.0475,2
+301,196,Secondary Forest,5.0629,PetitSaut2008,21/10/2008,-53.0475,2
+366,86,mountain forest secondary forest,5.07686,RioBlanco2012,12/03/2012,-75.4588,3
+371,91,mountain forest secondary forest,5.07686,RioBlanco2014,01/04/2014,-75.4588,3
+41,51,Primary and Secondary Forest,10.983,Pitilla1997,11/09/1997,-85.433,3
+46,56,Primary - 2m above ground,10.983,Pitilla2000,12/10/2000,-85.433,3
+51,56,Primary - Canopy,10.983,Pitilla2000,12/10/2000,-85.433,3
+56,61,Secondary,10.983,Pitilla2002,18/10/2002,-85.433,3
+61,66,Secondary and Primary forest,10.983,Pitilla2004,06/10/2004,-85.433,3
+86,71,Secondary Forest and Pasture,10.983,Pitilla2010,06/11/2010,-85.433,3
+201,136,Cloud Forest,15.51,Dominica2002,14/02/2002,-61.41,3
+196,136,Montane Thicket,15.51,Dominica2002,14/02/2002,-61.31,3
+191,136,Subtropical,15.375,Dominica2002,14/02/2002,-61.335,3
+106,101,"cloud forest, primary and secondary",15.542,Cusuco2006,23/07/2006,-88.264,3
+111,106,Lower Montane Tropical Forest,15.542,Cusuco2007,10/07/2007,-88.264,3
+451,111,Dry forest,17.6327,Saba2009,27/01/2009,-63.228,3
+121,111,LM = Montane,17.63,Saba2009,20/01/2009,-63.24,3
+126,111,MS = Cloud forest,17.635,Saba2009,20/01/2009,-63.24,3
+116,111,SC = Montane,17.638,Saba2009,20/01/2009,-63.235,3
+446,231,Forest - 1000,18.3119,Sonadora2004,13/02/2004,-65.795,3
+441,231,Forest - 950,18.3131,Sonadora2004,27/01/2003,-65.7964,3
+436,231,Forest - 900,18.3149,Sonadora2004,23/01/2003,-65.7975,3
+431,231,Forest - 850,18.3158,Sonadora2004,23/01/2003,-65.7994,3
+426,231,Forest - 800,18.3164,Sonadora2004,07/02/2004,-65.8017,3
+421,231,Forest - 750,18.3169,Sonadora2004,18/02/2004,-65.8031,3
+416,231,Forest - 700,18.3183,Sonadora2004,03/02/2003,-65.804,3
+411,231,Forest - 650,18.3202,Sonadora2004,03/02/2003,-65.8051,3
+401,231,Forest - 550,18.3209,Sonadora2004,02/02/2004,-65.81,3
+156,121,Dwarf forest,18.27,ElVerde1993,18/12/1993,-65.76,3
+151,121,Palo colarado,18.29,ElVerde1993,18/12/1993,-65.79,3
+146,121,Tabunoco,18.321,ElVerde1993,18/12/1993,-65.817,3
+171,126,Dwarf forest,18.27,ElVerde1994,01/01/1994,-65.76,3
+166,126,Palo colarado,18.29,ElVerde1994,01/01/1994,-65.79,3
+161,126,Tabunoco,18.321,ElVerde1994,01/01/1994,-65.817,3
+361,221,Dwarf Forest,18.27,ElVerde1996,12/03/1966,-65.76,3
+356,221,Palo Colarado,18.29,ElVerde1996,12/03/1996,-65.79,3
+351,221,Tabunoco,18.321,ElVerde1996,12/03/1996,-65.817,3
+181,131,Palo colarado,18.29,ElVerde1997,28/02/1997,-65.79,3
+176,131,Tabunoco,18.321,ElVerde1997,28/02/1997,-65.817,3
+141,116,Dwarf forest,18.27,ElVerde2010,13/01/2010,-65.76,3
+136,116,Palo colarado,18.29,ElVerde2010,13/01/2010,-65.79,3
+131,116,Tabunoco,18.321,ElVerde2010,13/01/2010,-65.817,3
+406,231,Forest - 600,18.3211,Sonadora2004,04/02/2004,-65.808,3
+396,231,Forest - 500,18.3212,Sonadora2004,29/01/2003,-65.8124,3
+391,231,Forest - 450,18.3225,Sonadora2004,31/01/2004,-65.8147,3
+376,231,Forest - 400,18.3229,Sonadora2004,24/01/2004,-65.8163,3
+486,256,Inundated forest,18.4267,Quintana_Roo2011,01/05/2011,-88.8044,3

@@ -2,5 +2,6 @@
 
 export(fw_auth)
 export(fw_data)
+export(fw_data_transformed)
 export(fw_version_current)
 export(fw_versions)
