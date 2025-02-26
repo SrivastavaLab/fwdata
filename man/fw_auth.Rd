@@ -2,10 +2,15 @@
 % Please edit documentation in R/fw_data_transformed.R
 \name{fw_auth}
 \alias{fw_auth}
-\title{Asks for your password}
+\title{Authenticate User and Set GITHUB_TOKEN}
 \usage{
 fw_auth()
 }
+\value{
+Invisibly returns `TRUE` after successful authentication and token setup.
+}
 \description{
-This password is only for members of the CESAB functional webs group. Please do not add it to your code!
+This function checks if a valid GITHUB_TOKEN is already set. If not, it prompts the user
+to enter a password, which is used to generate and store the GITHUB_TOKEN for future access.
+The GITHUB_TOKEN is required for accessing private repositories.
 }

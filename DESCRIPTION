@@ -2,6 +2,7 @@ Package: fwdata
 Title: What the Package Does (one line, title case)
 Version: 0.0.1
 Authors@R: person("Andrew", "MacDonald", email = "a.a.m.macdonald@gmail.com", role = c("aut", "cre"))
+            person("Sarah", "Abdelazim", email = "sarah_s96@hotmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends:
     R (>= 3.2.0)

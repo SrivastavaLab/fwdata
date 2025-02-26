@@ -4,8 +4,17 @@
 
 ## data accessing functions
 
+##' @title Retrieve Functional Web Data Information
+##'
+##' @description This function fetches the information of a dataset from GitHub, specifically
+##' the dataset related to either biomass or functional webs, depending on the provided argument.
+##'
+##' @param path Optional path to save the data.
+##' @param biomass Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.
+##'
+##' @return Returns the release information for the relevant dataset from GitHub.
+##'
 ##' @export
-## Core data:
 fw_info <- function(path, biomass = FALSE) {
   if(biomass){
     repo <- "SrivastavaLab/bwgbiomass"
@@ -20,29 +29,32 @@ fw_info <- function(path, biomass = FALSE) {
                                  path=NULL)
 }
 
-##' @title Get available versions of data
+##' @title Get Available Versions of Data
 ##'
-##' @param local Logical indicating if local or github versions should
-##'   be polled.  With any luck, \code{local=FALSE} is a superset of
-##'   \code{local=TRUE}.  For \code{fw_version_current}, if
-##'   \code{TRUE}, but there are no local versions, then we do check
-##'   for the most recent github version.
+##' @description This function retrieves the available versions of data from either local storage
+##' or GitHub, based on the specified parameters. If `local = FALSE`, the function will check for
+##' the most recent version on GitHub.
 ##'
-##' @param biomass Logical indicating whether or not you want the BWG
-##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##' @param local Logical indicating if local or GitHub versions should be polled. Defaults to TRUE.
+##' @param biomass Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.
+##' @param path Optional path to save the data.
+##'
+##' @return A list of available versions of the data.
 ##'
 ##' @export
 fw_versions <- function(local=TRUE, path=NULL, biomass = FALSE) {
   datastorr::github_release_versions(fw_info(path, biomass), local)
 }
 
-##' @title Find current version
+##' @title Find Current Version of Data
 ##'
-##' @param local Logical indicating if local or github versions should
-##'   be polled.
+##' @description This function retrieves the current version of data, either from local storage or GitHub.
 ##'
-##' @param biomass Logical indicating whether or not you want the BWG
-##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##' @param local Logical indicating if local or GitHub versions should be polled. Defaults to TRUE.
+##' @param biomass Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.
+##' @param path Optional path to save the data.
+##'
+##' @return The current version of the data.
 ##'
 ##' @export
 fw_version_current <- function(local=TRUE, path=NULL, biomass = FALSE) {
@@ -51,21 +63,15 @@ fw_version_current <- function(local=TRUE, path=NULL, biomass = FALSE) {
 
 ##' @title Download CESAB Functionalwebs Data
 ##'
-##' @param version Version number.  The default will load the most
-##'   recent version on your computer or the most recent version known
-##'   to the package if you have never downloaded the data before.
-##'   With \code{fw_del}, specifying \code{version=NULL} will
-##'   delete \emph{all} data sets.
+##' @description This function downloads a specific version of the CESAB Functionalwebs dataset.
+##' If no version is provided, it will load the most recent version from either local storage or GitHub.
+##' The `fw_del` function can be used to delete downloaded datasets.
 ##'
-##' @param path Path to store the data at.  If not given,
-##'   \code{datastorr} will use \code{rappdirs} to find the best place
-##'   to put persistent application data on your system.  You can
-##'   delete the persistent data at any time by running
-##'   \code{fw_del(NULL)} (or \code{fw_del(NULL, path)} if you
-##'   use a different path).
+##' @param version Version number. Default is `NULL` to load the most recent version.
+##' @param path Path to store the data at. Defaults to `NULL`, in which case `datastorr` will use `rappdirs` for best storage location.
+##' @param biomass Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.
 ##'
-##' @param biomass Logical indicating whether or not you want the BWG
-##' biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}
+##' @return The specified version of the dataset.
 ##'
 ##' @export
 fw_data <-  function(version=NULL, path=NULL, biomass = FALSE) {
@@ -74,13 +80,15 @@ fw_data <-  function(version=NULL, path=NULL, biomass = FALSE) {
 
 ### authentication --------------
 
-
-#' Asks for your password
-#'
-#' This password is only for members of the CESAB functional webs group. Please do not add it to your code!
-#'
-#'
-#' @export
+##' @title Authenticate User and Set GITHUB_TOKEN
+##'
+##' @description This function checks if a valid GITHUB_TOKEN is already set. If not, it prompts the user
+##' to enter a password, which is used to generate and store the GITHUB_TOKEN for future access.
+##' The GITHUB_TOKEN is required for accessing private repositories.
+##'
+##' @return Invisibly returns `TRUE` after successful authentication and token setup.
+##'
+##' @export
 fw_auth <- function() {
   # Check if a GITHUB_TOKEN is already set
   existing_token <- Sys.getenv("GITHUB_TOKEN")
@@ -116,8 +124,22 @@ fw_auth <- function() {
 }
 
 
-#input files -------------------------------------------------------------
-#' @export
+# input files -------------------------------------------------------------
+
+##' @title Load and Transform Data
+##'
+##' @description This function loads the CESAB Functionalwebs data and applies various transformations.
+##' Additional files such as "Extra_traits.csv" and "taxon_level_traits.csv" are read and merged into the dataset.
+##' It also applies specific data transformations based on traits, correcting certain values as specified by the user.
+##'
+##' @param version Version of the dataset to load. Default is "0.7.7".
+##' @param path Path to store the data at. Defaults to `NULL`, in which case the system's default path is used.
+##' @param biomass Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.
+##' @param private Logical indicating if the dataset should be accessed privately. Defaults to FALSE.
+##'
+##' @return The transformed dataset, including additional trait corrections and transformations.
+##'
+##' @export
 fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE, private = FALSE) {
 
   extra_traits <- read.csv(file.path("inst", "extdata", "Extra_traits.csv"), stringsAsFactors = FALSE)
