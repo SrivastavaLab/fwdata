@@ -2,20 +2,22 @@
 % Please edit documentation in R/fw_data_transformed.R
 \name{fw_versions}
 \alias{fw_versions}
-\title{Get available versions of data}
+\title{Get Available Versions of Data}
 \usage{
 fw_versions(local = TRUE, path = NULL, biomass = FALSE)
 }
 \arguments{
-\item{local}{Logical indicating if local or github versions should
-be polled.  With any luck, \code{local=FALSE} is a superset of
-\code{local=TRUE}.  For \code{fw_version_current}, if
-\code{TRUE}, but there are no local versions, then we do check
-for the most recent github version.}
+\item{local}{Logical indicating if local or GitHub versions should be polled. Defaults to TRUE.}
 
-\item{biomass}{Logical indicating whether or not you want the BWG
-biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}}
+\item{path}{Optional path to save the data.}
+
+\item{biomass}{Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.}
+}
+\value{
+A list of available versions of the data.
 }
 \description{
-Get available versions of data
+This function retrieves the available versions of data from either local storage
+or GitHub, based on the specified parameters. If `local = FALSE`, the function will check for
+the most recent version on GitHub.
 }

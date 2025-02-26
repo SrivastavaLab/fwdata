@@ -7,22 +7,17 @@
 fw_data(version = NULL, path = NULL, biomass = FALSE)
 }
 \arguments{
-\item{version}{Version number.  The default will load the most
-recent version on your computer or the most recent version known
-to the package if you have never downloaded the data before.
-With \code{fw_del}, specifying \code{version=NULL} will
-delete \emph{all} data sets.}
+\item{version}{Version number. Default is `NULL` to load the most recent version.}
 
-\item{path}{Path to store the data at.  If not given,
-\code{datastorr} will use \code{rappdirs} to find the best place
-to put persistent application data on your system.  You can
-delete the persistent data at any time by running
-\code{fw_del(NULL)} (or \code{fw_del(NULL, path)} if you
-use a different path).}
+\item{path}{Path to store the data at. Defaults to `NULL`, in which case `datastorr` will use `rappdirs` for best storage location.}
 
-\item{biomass}{Logical indicating whether or not you want the BWG
-biomass dataset found at \url{https://github.com/SrivastavaLab/bwgbiomass}}
+\item{biomass}{Logical indicating if the biomass dataset should be accessed. Defaults to FALSE.}
+}
+\value{
+The specified version of the dataset.
 }
 \description{
-Download CESAB Functionalwebs Data
+This function downloads a specific version of the CESAB Functionalwebs dataset.
+If no version is provided, it will load the most recent version from either local storage or GitHub.
+The `fw_del` function can be used to delete downloaded datasets.
 }
