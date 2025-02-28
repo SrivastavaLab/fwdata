@@ -329,16 +329,11 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
   traits_pub<-traits_species_names %>%
     filter(bwg_name %in% species_long_list)
 
-  # and then datasets to archive ---------------------
-
-  datasets<-latest$datasets %>%
-    filter(dataset_id != 96)
-
   dataset_list<-datasets$dataset_id %>% as.list()
 
   #Sarah - can you rewrite the next two lines of code so it inserts the current date
-  datasets_pub<-datasets %>%
-    filter(public_release<as.Date("2020-09-01"))
+  datasets_pub <- datasets %>%
+    filter(public_release < Sys.Date())
 
   public_datasets <-datasets_pub$dataset_id %>% as.list()
 
