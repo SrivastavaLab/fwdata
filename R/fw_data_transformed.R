@@ -329,10 +329,10 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
   traits_pub<-traits_species_names %>%
     filter(bwg_name %in% species_long_list)
 
-  dataset_list<-datasets$dataset_id %>% as.list()
+  dataset_list <- latest$datasets$dataset_id %>% as.list()
 
   #Sarah - can you rewrite the next two lines of code so it inserts the current date
-  datasets_pub <- datasets %>%
+  datasets_pub <- latest$datasets %>%
     filter(public_release < Sys.Date())
 
   public_datasets <-datasets_pub$dataset_id %>% as.list()
@@ -351,8 +351,7 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
   #now just the bromeliads in the datasets to archive-----------------------------------------
 
   bromeliads <-latest$bromeliads%>%
-    filter(dataset_id %in% dataset_list) %>%
-    filter(bromeliad_id %nin% c("5846", "7956", "9856"))
+    filter(dataset_id %in% dataset_list)
 
   bromeliads_pub <- bromeliads %>%
     filter(dataset_id %in% public_datasets)
@@ -388,7 +387,7 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
 
   # Private data
   private_data <- list(
-    datasets = datasets,
+    datasets = latest$datasets,
     visits = visits,
     traits = traits,
     bromeliads = bromeliads,
