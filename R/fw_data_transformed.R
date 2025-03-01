@@ -142,11 +142,11 @@ fw_auth <- function() {
 ##' @export
 fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE, private = FALSE) {
 
-  extra_traits <- read.csv(file.path("inst", "extdata", "Extra_traits.csv"), stringsAsFactors = FALSE)
-  taxon_level_traits <- read.csv(file.path("inst", "extdata", "taxon_level_traits.csv"), stringsAsFactors = FALSE)
+  extra_traits <- extra_traits <- read.csv(system.file("extdata", "Extra_traits.csv", package = "fwdata"), stringsAsFactors = FALSE)
+  taxon_level_traits <- read.csv(system.file("extdata", "taxon_level_traits.csv", package = "fwdata"), stringsAsFactors = FALSE)
   latest <- fw_data(version, path, biomass=biomass)
 
-  corr.visits <- read.csv(file.path("inst", "extdata", "visits_correct_LatLong_corrected.csv"), stringsAsFactors = FALSE) %>%
+  corr.visits <- read.csv(system.file("extdata", "visits_correct_LatLong_corrected.csv", package = "fwdata"), stringsAsFactors = FALSE) %>%
     select(visit_id, latitude, cor_long) %>%
     mutate(visit_id = as.character(visit_id))
 
