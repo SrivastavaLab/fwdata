@@ -1,4 +1,4 @@
-#' @importFrom dplyr mutate filter %>% select rename group_by summarise left_join
+#' @importFrom dplyr mutate filter %>% select rename group_by summarise left_join bind_rows
 #' @importFrom tidyr unite separate
 #' @importFrom utils read.csv
 
