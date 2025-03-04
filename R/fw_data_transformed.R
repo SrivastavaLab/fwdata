@@ -321,6 +321,29 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     unique() %>%
     as.list()
 
+  #1. create a small file with elevation change at the dataset level
+
+  elev<- latest$visits %>% group_by(dataset_id) %>% summarise(elev_change = max(max_elevation) - min(min_elevation), dataset_name = first(dataset_name)) %>%
+    mutate(dataset_id =as.character(dataset_id))
+
+  #2. add this to datasets
+
+  datasets_extended <- latest$datasets  %>%
+    mutate(dataset_id = as.character (dataset_id))%>%
+    left_join(elev)
+
+  #3. create a data_codes file with one row per visit, which looks to habitat when elevation change > 500m
+
+  data_codes <- latest$visits %>%
+    select(visit_id, habitat, meta, dataset_id) %>%
+    mutate(dataset_id = as.character (dataset_id))%>%
+    left_join(datasets_extended, by ="dataset_id") %>%
+    select(dataset_id, visit_id, name, location, habitat, meta, elev_change) %>%
+    mutate(location = if_else(elev_change < 500 | is.na(elev_change)|name=="Cusuco2006", location,                                                        if_else(name=="Sonadora2004", meta, habitat)))%>%
+    select(dataset_id, location, visit_id)
+
+  #4. Please export data_codes as part of the fw_data function.
+
   #starting with traits --------------------------------------------------------
 
   traits<-traits_species_names %>%
@@ -382,7 +405,8 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     visits = visits_pub,
     traits = traits_pub,
     bromeliads = bromeliads_pub,
-    abundance = abundance_pub
+    abundance = abundance_pub,
+    data_codes = data_codes
   )
 
   # Private data
@@ -391,7 +415,8 @@ fw_data_transformed <- function(version = "0.7.7", path = NULL, biomass = FALSE,
     visits = visits,
     traits = traits,
     bromeliads = bromeliads,
-    abundance = abundance
+    abundance = abundance,
+    data_codes = data_codes
   )
 
   #Sarah - here I have these saved to csv, but actually we want fwdata to export these as a list of dataframes
